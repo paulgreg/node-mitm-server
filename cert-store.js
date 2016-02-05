@@ -2,6 +2,7 @@ var exec = require('child_process').exec
 var mkdirp = require('mkdirp')
 var path = require('path')
 var fs = require('fs')
+var serialNb = 123456;
 
 module.exports = CertStore
 
@@ -66,7 +67,8 @@ CertStore.prototype.loadCert = function loadCert (hostname, cb) {
 }
 
 CertStore.prototype.makeCert = function makeCert (hostname, done) {
-  this.log('info', 'creating certs for ' + hostname)
+  serialNb++
+  this.log('info', 'creating certs for ' + hostname + ' (' + serialNb + ')')
   var keyPath = path.resolve(this.dir, hostname + '-key.pem')
   var csrPath = path.resolve(this.dir, hostname + '.csr')
   var certPath = path.resolve(this.dir, hostname + '-cert.pem')
@@ -74,7 +76,7 @@ CertStore.prototype.makeCert = function makeCert (hostname, done) {
   var csrCmd = 'openssl req -new -key ' + keyPath + ' -out ' + csrPath +
     '  -nodes -subj "/C=US/ST=OR/L=PDX/O=NR/CN=' + hostname + '"'
   var certCmd = 'openssl x509 -req -days 3650 -CA ' + this.caCert + ' -CAkey ' +
-    this.caKey + ' -in ' + csrPath + ' -out ' + certPath
+    this.caKey + ' -in ' + csrPath + ' -out ' + certPath + ' -set_serial ' + serialNb
 
   var commands = [keyCmd, csrCmd, certCmd]
 
